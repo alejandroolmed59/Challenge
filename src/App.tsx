@@ -11,11 +11,30 @@ interface VendingSchema {
   thumbnail: string;
 }
 
+
 const App: React.FC = ()=> {
+  const [dispatchCola , setCola] = useState<VendingSchema[]>([]) 
   const [vending, setVending] = useState<VendingSchema[]>([]);
 
-  const dispatch = (item : VendingSchema) =>{
-    console.log(item);
+  const dispatch = (candidato : VendingSchema) =>{
+    if(dispatchCola.some(value=>{
+      return value.id === candidato.id 
+    })){
+      console.log("Ya esta siendo ");
+    }else{
+      setCola((prevState: VendingSchema[])=>{
+        return [...prevState, candidato]
+      })
+      const intervalo = setInterval(()=>{
+        candidato.preparation_time-=1
+        setCola((prevState: VendingSchema[])=>{
+          return [...prevState]
+        })
+        if(candidato.preparation_time===0){
+          clearInterval(intervalo)
+        }
+      }, 1000)
+    }
   }
 
   useEffect(() => {
@@ -23,7 +42,6 @@ const App: React.FC = ()=> {
       .get<VendingSchema[]>("https://vending-machine-test.vercel.app/api/products")
       .then((response: AxiosResponse) => {
         setVending(response.data.data);
-        console.log("hola", response.data.data);
       })
       .catch((rejected) => {
         console.log(rejected);
