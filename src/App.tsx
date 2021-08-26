@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import "./App.css";
 import axios, { AxiosResponse } from "axios";
-import { Table, Button } from "reactstrap";
-import {Spin} from 'antd'
+import { Table, Button, Alert } from "reactstrap";
+import { Spin } from "antd";
 
 interface VendingSchema {
   id: string;
@@ -15,6 +15,7 @@ interface VendingSchema {
 const App: React.FC = () => {
   const [dispatchCola, setCola] = useState<VendingSchema[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fail, setFail] = useState<boolean>(false);
   const [vending, setVending] = useState<VendingSchema[]>([]);
 
   const dispatch = (item: VendingSchema) => {
@@ -48,10 +49,10 @@ const App: React.FC = () => {
       )
       .then((response: AxiosResponse) => {
         setVending(response.data.data);
-        setLoading(false)
+        setLoading(false);
       })
       .catch((rejected) => {
-        console.log(rejected);
+        setFail(true);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -61,8 +62,8 @@ const App: React.FC = () => {
       <Table dark responsive>
         <thead>
           <tr>
-            <th>id</th>
-            <th>name</th>
+            <th>Id</th>
+            <th>Nombre</th>
             <th>Tiempo restante</th>
             <th>Estado</th>
           </tr>
@@ -75,7 +76,17 @@ const App: React.FC = () => {
                 <td>{item.name}</td>
                 <td>{item.preparation_time}</td>
                 <td>
-                  {item.preparation_time===0?<Button color='success' active={false}> DESPACHADO</Button>:<Button active={false} color='warning'> EN PROCESO</Button>}
+                  {item.preparation_time === 0 ? (
+                    <Button color="success" active={false}>
+                      {" "}
+                      DESPACHADO
+                    </Button>
+                  ) : (
+                    <Button active={false} color="warning">
+                      {" "}
+                      EN PROCESO
+                    </Button>
+                  )}
                 </td>
               </tr>
             );
@@ -86,40 +97,51 @@ const App: React.FC = () => {
   );
   const MainTable = (
     <Table dark responsive>
-          <thead>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Nombre</th>
+          <th>Tiempo preparacion</th>
+          <th>Imagen</th>
+          <th>Despachar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {vending.map((item) => {
+          return (
             <tr>
-              <th>id</th>
-              <th>name</th>
-              <th>preparation</th>
-              <th>img</th>
-              <th>Despachar</th>
+              <td>{item.id}</td>
+              <td>{item.name}</td>
+              <td>{item.preparation_time}</td>
+              <td>
+                <img
+                  style={{ width: "150px", height: "150px" }}
+                  src={item.thumbnail}
+                  alt="hola"
+                />
+              </td>
+              <td>
+                <Button onClick={() => dispatch(item)}>
+                  Despachar {item.name}
+                </Button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {vending.map((item) => {
-              return (
-                <tr>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.preparation_time}</td>
-                  <td><img style={{width:'150px', height:'150px'}} src={item.thumbnail} alt="hola" /></td>
-                  <td>
-                    <Button onClick={() => dispatch(item)}>
-                      Despachar {item.name}
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+          );
+        })}
+      </tbody>
+    </Table>
   );
   return (
     <div className="App">
       <header className="App-header">
-        {loading&&<h1>CARGANDO...</h1>}
+        {fail && <Alert color="danger">Ocurio un error en la API!</Alert>}
+        {loading && <h1>CARGANDO...</h1>}
         {TablaQueue}
-        <Spin spinning={loading} size="large" tip="Cargando...">{MainTable}</Spin>
+        <h1>Items</h1>
+        <Spin spinning={loading} size="large" tip="Cargando...">
+          {MainTable}
+        </Spin>
+        <p className="footer">Focus Challenge Vending Machine- Alejandro Olmedo</p>
       </header>
     </div>
   );

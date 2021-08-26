@@ -12,7 +12,11 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
+.footer{
+  font-family: 'Knewave', cursive;
+  font-size: 1.5em;
+  color: black;
+}
 .App-header {
   background-color: rgb(250, 250, 207);
   min-height: 100vh;
